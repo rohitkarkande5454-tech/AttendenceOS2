@@ -11,44 +11,51 @@ const QUICK = [
 
 function mockAI(prompt, role) {
   const q = prompt.toLowerCase();
+  const includesAny = (words) => words.some(w => q.includes(w));
 
-  if (q.includes('attendance') && q.includes('my')) {
-    if (role === 'student') return '📊 Your overall attendance is 75%. You need 75% minimum to be eligible for exams. Keep it up!';
-    if (role === 'teacher') return '📊 You have marked attendance for 12 classes this month. Check the dashboard for detailed stats.';
-    return '📊 Admin can view all attendance records from the Attendance section.';
-  }
-  if (q.includes('mark attendance') || q.includes('how to mark')) {
-    if (role === 'teacher') return '✅ To mark attendance: Go to "Mark Attendance" → Select subject & date → Mark each student Present/Absent → Click Submit.';
-    return '✅ Only teachers can mark attendance. Students can view their attendance from "My Attendance" section.';
-  }
-  if (q.includes('low attendance') || q.includes('subject')) {
-    if (role === 'student') return '⚠️ Check "My Attendance" page to see subject-wise breakdown. Any subject below 75% is highlighted in red.';
-    return '⚠️ Go to Analytics section to see which subjects have low attendance rates across students.';
-  }
-  if (q.includes('policy') || q.includes('rules')) {
-    return '📋 Attendance Policy:\n• Minimum 75% attendance required\n• Below 75% = Not eligible for exams\n• Attendance is marked per subject\n• Contact admin for any corrections.';
-  }
-  if (q.includes('export') || q.includes('csv')) {
-    if (role === 'admin') return '📥 Go to Attendance section → Click "Export CSV" button to download attendance records.';
-    return '📥 CSV export is available for Admin and Teachers from the Attendance section.';
-  }
-  if (q.includes('hello') || q.includes('hi') || q.includes('hey')) {
+  if (includesAny(['hi', 'hello', 'hey'])) {
     return `👋 Hello! I am AttendanceOS Assistant. How can I help you today?`;
   }
-  if (q.includes('student') && role === 'admin') {
-    return '👥 You can manage students from Admin → Students section. Add, view or remove students there.';
-  }
-  if (q.includes('teacher') && role === 'admin') {
-    return '👨‍🏫 Manage teachers from Admin → Teachers section. Assign branches and subjects to teachers.';
-  }
-  if (q.includes('branch')) {
-    return '🏫 Branches can be managed from Admin → Branches section. Each branch has its own subjects and students.';
-  }
-  if (q.includes('login') || q.includes('password')) {
-    return '🔐 Contact your administrator to reset your password. Admin email: admin@college.edu';
+
+  if (includesAny(['attendance', 'present', 'absent'])) {
+    if (includesAny(['my', 'mine'])) {
+      if (role === 'student') return '📊 Your attendance is around 75%. Try to maintain above 75% for eligibility.';
+      if (role === 'teacher') return '📊 You can check attendance stats in the dashboard under analytics.';
+      return '📊 Admin can view complete attendance reports from the dashboard.';
+    }
+    return '📊 Attendance is tracked subject-wise. You can view details in the Attendance section.';
   }
 
-  return `🤖 I can help you with:\n• Attendance queries\n• How to mark attendance\n• Attendance policy\n• Export CSV\n• Subject-wise attendance\n\nPlease ask about any of these topics!`;
+  if (includesAny(['mark', 'submit', 'take attendance'])) {
+    if (role === 'teacher') return '✅ Go to "Mark Attendance" → Select subject → Mark students → Submit.';
+    return '⚠️ Only teachers can mark attendance.';
+  }
+
+  if (includesAny(['low', 'shortage', 'less'])) {
+    return '⚠️ Subjects below 75% are highlighted in red in your attendance dashboard.';
+  }
+
+  if (includesAny(['policy', 'rule', 'criteria'])) {
+    return '📋 Minimum 75% attendance required. Below that, exam eligibility may be denied.';
+  }
+
+  if (includesAny(['export', 'download', 'csv'])) {
+    return '📥 Go to Attendance → Click "Export CSV" to download records.';
+  }
+
+  if (role === 'admin' && includesAny(['student'])) {
+    return '👥 Manage students from Admin → Students section.';
+  }
+
+  if (role === 'admin' && includesAny(['teacher'])) {
+    return '👨‍🏫 Manage teachers from Admin → Teachers section.';
+  }
+
+  if (includesAny(['password', 'login'])) {
+    return '🔐 Contact admin to reset your password.';
+  }
+
+  return `🤖 I can help with:\n• Attendance info\n• Marking attendance\n• Policies\n• CSV export\n\nTry asking in simple words 🙂`;
 }
 
 export default function AiChat() {
@@ -72,8 +79,7 @@ export default function AiChat() {
     setMsgs(m => [...m, { role: 'user', text: q }]);
     setInput('');
     setLoading(true);
-    // Simulate thinking delay
-    await new Promise(r => setTimeout(r, 800));
+    await new Promise(r => setTimeout(r, 600 + Math.random() * 600));
     const reply = mockAI(q, user?.role || 'guest');
     setMsgs(m => [...m, { role: 'bot', text: reply }]);
     setLoading(false);

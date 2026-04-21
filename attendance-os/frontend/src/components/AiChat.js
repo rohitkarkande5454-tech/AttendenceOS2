@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 
-const GEMINI_KEY = process.env.REACT_APP_GEMINI_KEY;
-
 const QUICK = [
   'What is my attendance?',
   'How to mark attendance?',
@@ -11,32 +9,46 @@ const QUICK = [
   'How to export CSV?',
 ];
 
-async function askGemini(prompt, role) {
-  try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: `You are AttendanceOS AI Assistant. User role: ${role}. Answer shortly. Question: ${prompt}`
-            }]
-          }]
-        })
-      }
-    );
-    const data = await res.json();
-    console.log("Gemini Response:", data);
+function mockAI(prompt, role) {
+  const q = prompt.toLowerCase();
 
-    if (!res.ok) return "Error: " + (data.error?.message || "API failed");
-    if (!data.candidates) return "No response from AI (check API key)";
-    return data?.candidates?.[0]?.content?.parts?.[0]?.text || "AI did not return a response";
-  } catch (err) {
-    console.error(err);
-    return 'Network error';
+  if (q.includes('attendance') && q.includes('my')) {
+    if (role === 'student') return '📊 Your overall attendance is 75%. You need 75% minimum to be eligible for exams. Keep it up!';
+    if (role === 'teacher') return '📊 You have marked attendance for 12 classes this month. Check the dashboard for detailed stats.';
+    return '📊 Admin can view all attendance records from the Attendance section.';
   }
+  if (q.includes('mark attendance') || q.includes('how to mark')) {
+    if (role === 'teacher') return '✅ To mark attendance: Go to "Mark Attendance" → Select subject & date → Mark each student Present/Absent → Click Submit.';
+    return '✅ Only teachers can mark attendance. Students can view their attendance from "My Attendance" section.';
+  }
+  if (q.includes('low attendance') || q.includes('subject')) {
+    if (role === 'student') return '⚠️ Check "My Attendance" page to see subject-wise breakdown. Any subject below 75% is highlighted in red.';
+    return '⚠️ Go to Analytics section to see which subjects have low attendance rates across students.';
+  }
+  if (q.includes('policy') || q.includes('rules')) {
+    return '📋 Attendance Policy:\n• Minimum 75% attendance required\n• Below 75% = Not eligible for exams\n• Attendance is marked per subject\n• Contact admin for any corrections.';
+  }
+  if (q.includes('export') || q.includes('csv')) {
+    if (role === 'admin') return '📥 Go to Attendance section → Click "Export CSV" button to download attendance records.';
+    return '📥 CSV export is available for Admin and Teachers from the Attendance section.';
+  }
+  if (q.includes('hello') || q.includes('hi') || q.includes('hey')) {
+    return `👋 Hello! I am AttendanceOS Assistant. How can I help you today?`;
+  }
+  if (q.includes('student') && role === 'admin') {
+    return '👥 You can manage students from Admin → Students section. Add, view or remove students there.';
+  }
+  if (q.includes('teacher') && role === 'admin') {
+    return '👨‍🏫 Manage teachers from Admin → Teachers section. Assign branches and subjects to teachers.';
+  }
+  if (q.includes('branch')) {
+    return '🏫 Branches can be managed from Admin → Branches section. Each branch has its own subjects and students.';
+  }
+  if (q.includes('login') || q.includes('password')) {
+    return '🔐 Contact your administrator to reset your password. Admin email: admin@college.edu';
+  }
+
+  return `🤖 I can help you with:\n• Attendance queries\n• How to mark attendance\n• Attendance policy\n• Export CSV\n• Subject-wise attendance\n\nPlease ask about any of these topics!`;
 }
 
 export default function AiChat() {
@@ -60,7 +72,9 @@ export default function AiChat() {
     setMsgs(m => [...m, { role: 'user', text: q }]);
     setInput('');
     setLoading(true);
-    const reply = await askGemini(q, user?.role || 'guest');
+    // Simulate thinking delay
+    await new Promise(r => setTimeout(r, 800));
+    const reply = mockAI(q, user?.role || 'guest');
     setMsgs(m => [...m, { role: 'bot', text: reply }]);
     setLoading(false);
   };

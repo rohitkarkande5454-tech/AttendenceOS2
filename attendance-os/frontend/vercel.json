@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "destination": "https://attendance-os-backend.onrender.com/api/:path*"
+    }
+  ]
+}

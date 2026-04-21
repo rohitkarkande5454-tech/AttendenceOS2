@@ -14,7 +14,7 @@ const QUICK = [
 async function askGemini(prompt, role) {
   try {
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${process.env.REACT_APP_GEMINI_MODEL || 'gemini-1.5-flash'}:generateContent?key=${GEMINI_KEY}`,
+     `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${GEMINI_KEY}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

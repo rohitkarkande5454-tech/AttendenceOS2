@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/AuthContext';
 
-const GEMINI_KEY = 'AIzaSyCOzCmc7nFVk1v8Hyzdf5xZpWjFfuz4WPs';
+const GEMINI_KEY = 'AIzaSyA2Ax5g0YKC5x414rJaI6cfqKt1dk8AiCs';
 
 const QUICK = [
   'What is my attendance?',

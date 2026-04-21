@@ -14,25 +14,28 @@ const QUICK = [
 async function askGemini(prompt, role) {
   try {
     const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{
             parts: [{
-              text: `You are AttendanceOS AI Assistant for a college attendance management system. 
-User role: ${role}. Be concise, helpful, and professional.
-Question: ${prompt}`
+              text: `You are AttendanceOS AI Assistant. User role: ${role}. Answer shortly. Question: ${prompt}`
             }]
           }]
         })
       }
     );
     const data = await res.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || 'Sorry, I could not process that.';
-  } catch {
-    return 'AI service unavailable. Please check your connection.';
+    console.log("Gemini Response:", data);
+
+    if (!res.ok) return "Error: " + (data.error?.message || "API failed");
+    if (!data.candidates) return "No response from AI (check API key)";
+    return data?.candidates?.[0]?.content?.parts?.[0]?.text || "AI did not return a response";
+  } catch (err) {
+    console.error(err);
+    return 'Network error';
   }
 }
 
@@ -76,7 +79,6 @@ export default function AiChat() {
               ×
             </button>
           </div>
-
           <div className="ai-messages">
             {msgs.map((m, i) => (
               <div key={i} className={`ai-msg ${m.role}`}>
@@ -94,13 +96,11 @@ export default function AiChat() {
             )}
             <div ref={bottomRef} />
           </div>
-
           <div className="ai-quick">
             {QUICK.map((q, i) => (
               <button key={i} className="ai-qbtn" onClick={() => send(q)}>{q}</button>
             ))}
           </div>
-
           <div className="ai-input-row">
             <input className="ai-input" value={input}
               onChange={e => setInput(e.target.value)}
@@ -110,7 +110,6 @@ export default function AiChat() {
           </div>
         </div>
       )}
-
       <button className="ai-fab" onClick={() => setOpen(o => !o)}>🤖</button>
     </div>
   );

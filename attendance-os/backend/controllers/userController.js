@@ -1,7 +1,6 @@
 const db = require('../config/db');
 const bcrypt = require('bcryptjs');
 
-// GET /api/users/students?branch_id=
 const getStudents = async (req, res) => {
   try {
     const { branch_id } = req.query;
@@ -21,7 +20,6 @@ const getStudents = async (req, res) => {
   }
 };
 
-// POST /api/users/students
 const addStudent = async (req, res) => {
   try {
     const { name, email, password, branch_id, roll_no } = req.body;
@@ -42,7 +40,6 @@ const addStudent = async (req, res) => {
   }
 };
 
-// DELETE /api/users/students/:id
 const deleteStudent = async (req, res) => {
   try {
     const [s] = await db.query('SELECT user_id FROM students WHERE id = ?', [req.params.id]);
@@ -54,7 +51,6 @@ const deleteStudent = async (req, res) => {
   }
 };
 
-// GET /api/users/teachers
 const getTeachers = async (req, res) => {
   try {
     const [rows] = await db.query(`
@@ -74,7 +70,6 @@ const getTeachers = async (req, res) => {
   }
 };
 
-// POST /api/users/teachers
 const addTeacher = async (req, res) => {
   try {
     const { name, email, password, branch_id, subject_ids } = req.body;
@@ -100,7 +95,18 @@ const addTeacher = async (req, res) => {
   }
 };
 
-// GET /api/users/branches
+// DELETE /api/users/teachers/:id
+const deleteTeacher = async (req, res) => {
+  try {
+    const [t] = await db.query('SELECT user_id FROM teachers WHERE id = ?', [req.params.id]);
+    if (!t.length) return res.status(404).json({ message: 'Teacher not found.' });
+    await db.query('DELETE FROM users WHERE id = ?', [t[0].user_id]);
+    res.json({ message: 'Teacher deleted.' });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error.' });
+  }
+};
+
 const getBranches = async (req, res) => {
   try {
     const [rows] = await db.query('SELECT * FROM branches');
@@ -110,7 +116,6 @@ const getBranches = async (req, res) => {
   }
 };
 
-// POST /api/users/branches
 const addBranch = async (req, res) => {
   try {
     const { name } = req.body;
@@ -121,7 +126,6 @@ const addBranch = async (req, res) => {
   }
 };
 
-// GET /api/users/subjects?branch_id=
 const getSubjects = async (req, res) => {
   try {
     const { branch_id } = req.query;
@@ -135,7 +139,6 @@ const getSubjects = async (req, res) => {
   }
 };
 
-// POST /api/users/subjects
 const addSubject = async (req, res) => {
   try {
     const { name, code, branch_id } = req.body;
@@ -146,4 +149,4 @@ const addSubject = async (req, res) => {
   }
 };
 
-module.exports = { getStudents, addStudent, deleteStudent, getTeachers, addTeacher, getBranches, addBranch, getSubjects, addSubject };
+module.exports = { getStudents, addStudent, deleteStudent, getTeachers, addTeacher, deleteTeacher, getBranches, addBranch, getSubjects, addSubject };

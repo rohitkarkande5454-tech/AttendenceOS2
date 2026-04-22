@@ -45,6 +45,17 @@ export default function AdminTeachers() {
     }
   };
 
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to delete this teacher?')) return;
+    try {
+      await axios.delete(`/api/users/teachers/${id}`);
+      toast.success('Teacher deleted!');
+      load();
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Error deleting teacher');
+    }
+  };
+
   const filteredSubjects = subjects.filter(s => String(s.branch_id) === String(form.branch_id));
 
   return (
@@ -63,7 +74,7 @@ export default function AdminTeachers() {
           : <div className="table-wrap">
               <table>
                 <thead><tr>
-                  <th>Name</th><th>Email</th><th>Branch</th><th>Subjects</th>
+                  <th>Name</th><th>Email</th><th>Branch</th><th>Subjects</th><th>Action</th>
                 </tr></thead>
                 <tbody>
                   {teachers.map(t => (
@@ -76,10 +87,18 @@ export default function AdminTeachers() {
                           <span key={i} className="badge info" style={{ marginRight:4 }}>{c}</span>
                         ))}
                       </td>
+                      <td>
+                        <button
+                          className="btn btn-sm"
+                          style={{ background:'#e74c3c', color:'#fff', border:'none' }}
+                          onClick={() => handleDelete(t.id)}>
+                          🗑 Delete
+                        </button>
+                      </td>
                     </tr>
                   ))}
                   {teachers.length === 0 && (
-                    <tr><td colSpan={4} style={{ textAlign:'center', color:'var(--text3)', padding:28 }}>
+                    <tr><td colSpan={5} style={{ textAlign:'center', color:'var(--text3)', padding:28 }}>
                       No teachers found.
                     </td></tr>
                   )}

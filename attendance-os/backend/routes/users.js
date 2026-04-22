@@ -3,7 +3,7 @@ const router = express.Router();
 const { authMiddleware, requireRole } = require('../middleware/auth');
 const {
   getStudents, addStudent, deleteStudent,
-  getTeachers, addTeacher,
+  getTeachers, addTeacher, deleteTeacher,
   getBranches, addBranch,
   getSubjects, addSubject
 } = require('../controllers/userController');
@@ -24,5 +24,6 @@ router.delete('/students/:id',   authMiddleware, requireRole('admin'), deleteStu
 // Teachers
 router.get('/teachers',          authMiddleware, requireRole('admin'), getTeachers);
 router.post('/teachers',         authMiddleware, requireRole('admin'), addTeacher);
+router.delete('/teachers/:id',   authMiddleware, requireRole('admin'), deleteTeacher);
 
 module.exports = router;
